@@ -6,6 +6,32 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  password    String
+  email       String    @unique
+  role        Role      @default(User)
+  auth        Auth?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+}
+
+enum Role { 
+  Admin
+  User
+}
+
+model Auth {
+  id                            String    @id @default(auto()) @map("_id") @db.ObjectId
+  refreshToken                  String    @unique
+  refreshTokenExpirationDate    DateTime
+  user                          User      @relation(fields: [userId], references: [id])
+  userId                        String    @unique @db.ObjectId
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @default(now())
 }
